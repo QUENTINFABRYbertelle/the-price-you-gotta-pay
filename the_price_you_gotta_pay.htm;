@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>The Price You Gotta Pay</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      background: #1c1c1c;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    .flex {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .panel {
+      flex: 1 1 280px;
+      background: #222;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+
+    input, select, button, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background: #111;
+      color: #f5f5f5;
+      font-size: 0.9rem;
+    }
+
+    button {
+      cursor: pointer;
+      background: #ff5722;
+      border: none;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #ff784e;
+    }
+
+    .pixel-car {
+      width: 160px;
+      height: 80px;
+      image-rendering: pixelated;
+      background: #111;
+      margin: 0 auto 10px;
+      position: relative;
+    }
+
+    /* Simple pixel-art car using box-shadows */
+    .pixel {
+      width: 4px;
+      height: 4px;
+      position: absolute;
+      background: #ff0000;
+      box-shadow:
+        /* body */
+        24px 28px #ff0000, 28px 28px #ff0000, 32px 28px #ff0000, 36px 28px #ff0000,
+        40px 28px #ff0000, 44px 28px #ff0000, 48px 28px #ff0000, 52px 28px #ff0000,
+        56px 28px #ff0000, 60px 28px #ff0000, 64px 28px #ff0000, 68px 28px #ff0000,
+        72px 28px #ff0000, 76px 28px #ff0000,
+        24px 32px #ff0000, 28px 32px #ff0000, 32px 32px #ff0000, 36px 32px #ff0000,
+        40px 32px #ff0000, 44px 32px #ff0000, 48px 32px #ff0000, 52px 32px #ff0000,
+        56px 32px #ff0000, 60px 32px #ff0000, 64px 32px #ff0000, 68px 32px #ff0000,
+        72px 32px #ff0000, 76px 32px #ff0000,
+        /* roof */
+        32px 24px #ff0000, 36px 24px #ff0000, 40px 24px #ff0000, 44px 24px #ff0000,
+        48px 24px #ff0000, 52px 24px #ff0000, 56px 24px #ff0000, 60px 24px #ff0000,
+        /* windows */
+        36px 20px #00bcd4, 40px 20px #00bcd4, 44px 20px #00bcd4,
+        48px 20px #00bcd4, 52px 20px #00bcd4,
+        /* wheels */
+        32px 36px #000000, 36px 36px #000000,
+        64px 36px #000000, 68px 36px #000000;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+      border: 1px solid #444;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    .leaderboard-table th {
+      background: #333;
+    }
+
+    .highlight {
+      color: #ffeb3b;
+      font-weight: 600;
+    }
+
+    .small {
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>The Price You Gotta Pay</h1>
+  <p class="small">Up to 10 players battle in a ridiculous auction for a pixel car.</p>
+
+  <div class="container">
+    <div class="flex">
+      <!-- Car & current status -->
+      <div class="panel">
+        <h2>Auction: Pixel Car</h2>
+        <div class="pixel-car">
+          <div class="pixel"></div>
+        </div>
+        <p><strong>Starting bid:</strong> $500</p>
+        <p id="currentWinner">Current winner: none</p>
+        <p id="currentBid">Current bid: none</p>
+        <p class="small">
+          Bids can be normal (like <strong>$1200</strong>) or completely outrageous
+          (like <strong>“my house”</strong> or <strong>“the population of a third world country”</strong>).
+        </p>
+      </div>
+
+      <!-- Signup -->
+      <div class="panel">
+        <h2>Sign up (max 10 players)</h2>
+        <label for="playerName">Player name</label>
+        <input id="playerName" type="text" placeholder="e.g. Quentin" />
+        <button id="addPlayerBtn">Add player</button>
+        <p id="signupMsg" class="small"></p>
+
+        <h3>Players</h3>
+        <ul id="playerList" class="small"></ul>
+      </div>
+
+      <!-- Bidding UI -->
+      <div class="panel">
+        <h2>Place a bid</h2>
+        <label for="bidPlayer">Choose player</label>
+        <select id="bidPlayer"></select>
+
+        <label for="bidType">Bid type</label>
+        <select id="bidType">
+          <option value="money">Money ($)</option>
+          <option value="crazy">Outrageous / crazy</option>
+        </select>
+
+        <div id="moneyBidBlock">
+          <label for="moneyBid">Money bid (must be ≥ 500)</label>
+          <input id="moneyBid" type="number" min="500" step="1" placeholder="e.g. 1200" />
+        </div>
+
+        <div id="crazyBidBlock" style="display:none;">
+          <label for="crazyBid">Outrageous bid description</label>
+          <textarea id="crazyBid" rows="3" placeholder="e.g. My house, my soul, the population of a third world country"></textarea>
+        </div>
+
+        <button id="placeBidBtn">Place bid</button>
+        <p id="bidMsg" class="small"></p>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="panel" style="margin-top:20px;">
+      <h2>Leaderboard</h2>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>Bid</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody">
+          <!-- Filled by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const MAX_PLAYERS = 10;
+    const players = [];
+    const bids = []; // { player, type, value, numericValueForSort }
+
+    const playerNameInput = document.getElementById('playerName');
+    const addPlayerBtn = document.getElementById('addPlayerBtn');
+    const signupMsg = document.getElementById('signupMsg');
+    const playerList = document.getElementById('playerList');
+    const bidPlayerSelect = document.getElementById('bidPlayer');
+
+    const bidTypeSelect = document.getElementById('bidType');
+    const moneyBidBlock = document.getElementById('moneyBidBlock');
+    const crazyBidBlock = document.getElementById('crazyBidBlock');
+    const moneyBidInput = document.getElementById('moneyBid');
+    const crazyBidInput = document.getElementById('crazyBid');
+    const placeBidBtn = document.getElementById('placeBidBtn');
+    const bidMsg = document.getElementById('bidMsg');
+
+    const currentWinnerEl = document.getElementById('currentWinner');
+    const currentBidEl = document.getElementById('currentBid');
+    const leaderboardBody = document.getElementById('leaderboardBody');
+
+    function refreshPlayerUI() {
+      // player list
+      playerList.innerHTML = '';
+      players.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p;
+        playerList.appendChild(li);
+      });
+
+      // select
+      bidPlayerSelect.innerHTML = '';
+      players.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        bidPlayerSelect.appendChild(opt);
+      });
+    }
+
+    function refreshLeaderboard() {
+      leaderboardBody.innerHTML = '';
+
+      // sort bids: money first by numeric desc, then crazy bids after
+      const sorted = [...bids].sort((a, b) => {
+        // money vs crazy: money wins
+        if (a.type === 'money' && b.type === 'crazy') return -1;
+        if (a.type === 'crazy' && b.type === 'money') return 1;
+        // both money
+        if (a.type === 'money' && b.type === 'money') {
+          return b.numericValueForSort - a.numericValueForSort;
+        }
+        // both crazy: keep insertion order
+        return 0;
+      });
+
+      sorted.forEach((bid, index) => {
+        const tr = document.createElement('tr');
+        const rankTd = document.createElement('td');
+        const playerTd = document.createElement('td');
+        const bidTd = document.createElement('td');
+        const typeTd = document.createElement('td');
+
+        rankTd.textContent = index + 1;
+        playerTd.textContent = bid.player;
+        bidTd.textContent = bid.value;
+        typeTd.textContent = bid.type === 'money' ? 'Money' : 'Outrageous';
+
+        // highlight top bid
+        if (index === 0) {
+          playerTd.classList.add('highlight');
+          bidTd.classList.add('highlight');
+        }
+
+        tr.appendChild(rankTd);
+        tr.appendChild(playerTd);
+        tr.appendChild(bidTd);
+        tr.appendChild(typeTd);
+        leaderboardBody.appendChild(tr);
+      });
+
+      if (sorted.length === 0) {
+        currentWinnerEl.textContent = 'Current winner: none';
+        currentBidEl.textContent = 'Current bid: none';
+      } else {
+        const top = sorted[0];
+        currentWinnerEl.textContent = 'Current winner: ' + top.player;
+        currentBidEl.textContent = 'Current bid: ' + top.value + ' (' + (top.type === 'money' ? '$' : 'outrageous') + ')';
+      }
+    }
+
+    addPlayerBtn.addEventListener('click', () => {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        signupMsg.textContent = 'Enter a name.';
+        return;
+      }
+      if (players.length >= MAX_PLAYERS) {
+        signupMsg.textContent = 'Maximum of ' + MAX_PLAYERS + ' players reached.';
+        return;
+      }
+      if (players.includes(name)) {
+        signupMsg.textContent = 'That name is already taken.';
+        return;
+      }
+      players.push(name);
+      playerNameInput.value = '';
+      signupMsg.textContent = 'Player added.';
+      refreshPlayerUI();
+    });
+
+    bidTypeSelect.addEventListener('change', () => {
+      const type = bidTypeSelect.value;
+      if (type === 'money') {
+        moneyBidBlock.style.display = 'block';
+        crazyBidBlock.style.display = 'none';
+      } else {
+        moneyBidBlock.style.display = 'none';
+        crazyBidBlock.style.display = 'block';
+      }
+    });
+
+    placeBidBtn.addEventListener('click', () => {
+      bidMsg.textContent = '';
+
+      if (players.length === 0) {
+        bidMsg.textContent = 'No players yet. Sign up first.';
+        return;
+      }
+
+      const player = bidPlayerSelect.value;
+      const type = bidTypeSelect.value;
+
+      if (!player) {
+        bidMsg.textContent = 'Choose a player.';
+        return;
+      }
+
+      if (type === 'money') {
+        const val = Number(moneyBidInput.value);
+        if (isNaN(val) || val < 500) {
+          bidMsg.textContent = 'Money bid must be at least $500.';
+          return;
+        }
+        bids.push({
+          player,
+          type: 'money',
+          value: '$' + val.toLocaleString(),
+          numericValueForSort: val
+        });
+        bidMsg.textContent = 'Money bid placed.';
+        moneyBidInput.value = '';
+      } else {
+        const text = crazyBidInput.value.trim();
+        if (!text) {
+          bidMsg.textContent = 'Describe your outrageous bid.';
+          return;
+        }
+
+        // Give crazy bids a pseudo-random "value" so they can sometimes beat money
+        const crazyScore = 999999 + Math.floor(Math.random() * 1000000);
+
+        bids.push({
+          player,
+          type: 'crazy',
+          value: text,
+          numericValueForSort: crazyScore
+        });
+        bidMsg.textContent = 'Outrageous bid placed.';
+        crazyBidInput.value = '';
+      }
+
+      refreshLeaderboard();
+    });
+
+    // Initial UI
+    refreshPlayerUI();
+    refreshLeaderboard();
+  </script>
+</body>
+</html>
